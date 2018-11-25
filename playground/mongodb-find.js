@@ -1,11 +1,11 @@
 // const MongoClient = require("mongodb").MongoClient;
 const { MongoClient, ObjectID } = require("mongodb"); // es6 destructuring
 
-MongoClient.connect('mongodb://localhost:27017/AppDb', (err, client) => {
-    const db = client.db('AppDb');
-
+MongoClient.connect('mongodb://localhost:27017', (err, client) => {
     if (err) { return console.log("Unable to connect to the server") };
     console.log("Connected to the server");
+    
+    const db = client.db('AppDb');
 
     // Fetching all documents from AppDB database
     db.collection('Todos').find().toArray().then(
