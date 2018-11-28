@@ -15,19 +15,17 @@ app.use(bodyParser.json());
 
 // POST - add list of user objects
 app.post("/users", (req, res) => {
-    let user = new User({
-        name: req.body.name,
-        surname: req.body.surname,
-        age: req.body.age,
-        email: req.body.email,
-        isAKid: req.body.isAKid,
-    });
+    let body = _.pick(req.body, ['name', 'surname', 'age', 'email', 'password'])
+    let user = new User(body);
 
     user.save().then(
-        (doc) => {
-            res.send(doc);
-        },
-        (err) => {
+        () => {
+            return user.generateAuthToken();
+        }).then(
+            (token) => {
+                res.header('x-auth', token).send(user);
+            }
+        ).catch((e) => {
             res.status(400).send(err);
         });
 });
@@ -87,7 +85,7 @@ app.delete("/users/:id", (req, res) => {
 // PATCH - update current user by id from db
 app.patch("/users/:id", (req, res) => {
     let id = req.params.id;
-    let body = _.pick(req.body, ['name', 'surname', 'age', 'email', 'isAKid'])
+    let body = _.pick(req.body, ['name', 'surname', 'age', 'email', 'password'])
 
     if (!ObjectID.isValid(id)) {
         return res.status(404).send("Wrong id!!!");
@@ -109,7 +107,7 @@ app.patch("/users/:id", (req, res) => {
 // PUT - update current user by id from db
 app.put("/users/:id", (req, res) => {
     let id = req.params.id;
-    let body = _.pick(req.body, ['name', 'surname', 'age', 'email', 'isAKid'])
+    let body = _.pick(req.body, ['name', 'surname', 'age', 'email', 'password'])
 
     if (!ObjectID.isValid(id)) {
         return res.status(404).send("Wrong id!!!");
