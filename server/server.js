@@ -1,3 +1,5 @@
+require('./config/config.js');
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
@@ -7,7 +9,7 @@ const { mongoose } = require("./db/mongoose.js"); // es6 destructuring
 const { User } = require("./moduls/user.js");
 
 let app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
@@ -85,13 +87,13 @@ app.delete("/users/:id", (req, res) => {
 // PATCH - update current user by id from db
 app.patch("/users/:id", (req, res) => {
     let id = req.params.id;
-    let body = _.pick(req.body, ['name','surname','age','email','isAKid'])
+    let body = _.pick(req.body, ['name', 'surname', 'age', 'email', 'isAKid'])
 
     if (!ObjectID.isValid(id)) {
         return res.status(404).send("Wrong id!!!");
     }
     else {
-        User.findByIdAndUpdate(id, {$set: body}, {new: true}).then(
+        User.findByIdAndUpdate(id, { $set: body }, { new: true }).then(
             (updatedUser) => {
                 if (!updatedUser) {
                     return res.status(404).send();
@@ -107,13 +109,13 @@ app.patch("/users/:id", (req, res) => {
 // PUT - update current user by id from db
 app.put("/users/:id", (req, res) => {
     let id = req.params.id;
-    let body = _.pick(req.body, ['name','surname','age','email','isAKid'])
+    let body = _.pick(req.body, ['name', 'surname', 'age', 'email', 'isAKid'])
 
     if (!ObjectID.isValid(id)) {
         return res.status(404).send("Wrong id!!!");
     }
     else {
-        User.findByIdAndUpdate(id, {$set: body}, {new: true}).then(
+        User.findByIdAndUpdate(id, { $set: body }, { new: true }).then(
             (updatedUser) => {
                 if (!updatedUser) {
                     return res.status(404).send();
