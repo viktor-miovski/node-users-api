@@ -6,29 +6,50 @@ const { ObjectID } = require('mongodb');
 const _ = require('lodash');
 
 const { mongoose } = require("./db/mongoose.js"); // es6 destructuring
-const { User } = require("./moduls/user.js");
+let { User } = require("./moduls/user.js");
+let {authenticate} = require('./middleware/authenticate');
 
 let app = express();
 const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
-// POST - add list of user objects
+// POST - add list of user objects -> registration
 app.post("/users", (req, res) => {
-    let body = _.pick(req.body, ['name', 'surname', 'age', 'email', 'password'])
+    let body = _.pick(req.body, ['name', 'surname', 'age', 'email', 'password']);
     let user = new User(body);
 
     user.save().then(
-        () => {
-            return user.generateAuthToken();
-        }).then(
-            (token) => {
-                res.header('x-auth', token).send(user);
-            }
-        ).catch((e) => {
+        (doc) => {
+            res.send(doc);
+        },
+        (err) => {
             res.status(400).send(err);
         });
 });
+
+// POST - email and pass -> login
+app.post("/users/login", (req, res) => {
+    let body = _.pick(req.body, ['email', 'password']);
+    // find User by email and pass, return it and generate a auth token to it and send it back to the front-end
+    // let user = new User(body);
+
+    // user.save().then(
+    //     () => {
+    //         return user.generateAuthToken();
+    //     }).then(
+    //         (token) => {
+    //             res.header('x-auth', token).send(user);
+    //         }
+    //     ).catch((e) => {
+    //         res.status(400).send(err);
+    //     });
+});
+
+// GET - an user from db with authentication middleware (auth by token from header)
+app.get("/users/user", authenticate, (req, res) => {
+    res.send(req.user);
+})
 
 // GET - all users from db
 app.get("/users", (req, res) => {
