@@ -58,7 +58,7 @@ UserSchema.methods.toJSON = function () {
     return _.pick(userObject, ['_id', 'name', 'surname', 'age', 'email']);
 };
 
-// adding instance method to the schema
+// adding instance methods to the schema
 UserSchema.methods.generateAuthToken = function () {
     let user = this;
     let access = 'auth';
@@ -70,6 +70,18 @@ UserSchema.methods.generateAuthToken = function () {
     return user.save().then(() => { return token; })
 };
 
+UserSchema.methods.removeToken = function (token) {
+    let user = this;
+
+    // $pull - remove items from array matching certain criteria
+    return user.update({
+        $pull: {
+            tokens: { token }
+        }
+    })
+}
+
+// adding static methods to the schema
 UserSchema.statics.findByToken = function (token) {
     let User = this;
     let decoded;
@@ -97,12 +109,12 @@ UserSchema.statics.findByCredentials = function (email, password) {
             }
 
             return new Promise((resolve, reject) => {
-                bcrypt.compare(password, user.password, (err, res)=>{
-                    if(res){
+                bcrypt.compare(password, user.password, (err, res) => {
+                    if (res) {
                         // return user with its data
                         resolve(user);
                     }
-                    else{
+                    else {
                         reject();
                     }
                 })
